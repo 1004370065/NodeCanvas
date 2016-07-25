@@ -15,5 +15,12 @@ public class NodeScriptableFactor {
 		AssetDatabase.CreateAsset(data , path+".asset");
 		AssetDatabase.Refresh();
 	}
+		public static T Execute<T>(string path)where T:ScriptableObject
+		{
+			T  data = ScriptableObject.CreateInstance<T>();//创建Test的一个实例
+			AssetDatabase.CreateAsset(data , path+".asset");
+			AssetDatabase.Refresh();
+			return data;
+		}
 }
 }

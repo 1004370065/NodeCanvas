@@ -27,6 +27,11 @@ public class Node{
 	[HideInInspector]
 	public NodeInfo[] infos = new NodeInfo[0];
 	public string name = "";
+	public float nodeProgressBar = 0;
+	public bool ShowNodeProgressBar = false;
+	public virtual string DrawNodeName{
+			get{ return name; }
+	}
 	public string groupPath = "Base";
 		public Node(){
 			infos = ArrayUtility.Add<NodeInfo>(infos,new NodeInfo ());

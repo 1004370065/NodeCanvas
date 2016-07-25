@@ -30,7 +30,7 @@ public class IFsmEditor : NodeEditor {
 	protected override void UpdateOffset ()
 	{
 		if(_scriptableObject!=null)
-			_scriptableObject.CurrentGroup.CanvasPos = offset;
+			_scriptableObject.CurrentGroup.CanvasPos = _canvasOffset;
 	}
 	void OnSelectionChange (){
 		SelectObj ();
@@ -42,10 +42,10 @@ public class IFsmEditor : NodeEditor {
 			_parametersList = new ReorderableList(_scriptableObject.parameters,typeof(FSMParameters));
 			_parametersList.displayAdd = false;
 			_parametersList.headerHeight = 0;
-				offset = _scriptableObject.CurrentGroup.CanvasPos;
+				_canvasOffset = _scriptableObject.CurrentGroup.CanvasPos;
 			UpdateNodes ();
 //			startNode = (Node) _scriptableObject.startNode;
-				groupPaths = _scriptableObject.currentGroupPath;
+				_currentGroupPath = _scriptableObject.currentGroupPath;
 		}
 		Repaint ();
 	}
@@ -113,17 +113,17 @@ public class IFsmEditor : NodeEditor {
 	}
 	protected override void DrawRightPanel ()
 	{
-		switch(selectType){
+		switch(_selectType){
 		case SelectType.None:
 			break;
 		case SelectType.NodeGroud:
 			break;
 		case SelectType.Node:
-			if(selectNodes[0] is FSMNode)
-				ShowNode ((FSMNode)selectNodes [0]);
+			if(_selectNodes[0] is FSMNode)
+				ShowNode ((FSMNode)_selectNodes [0]);
 			break;
 		case SelectType.Transition:
-			ShowTransition (selectTransition);
+			ShowTransition (_selectTransition);
 			break;
 		}
 
@@ -152,19 +152,19 @@ public class IFsmEditor : NodeEditor {
 	protected override void SelectGroup (string path)
 	{
 		_scriptableObject.currentGroupPath = path;
-		groupPaths = path;
+		_currentGroupPath = path;
 		UpdateNodes ();
 	}
 	protected override void SelectGroup (Node nodegroup)
 	{
 			_scriptableObject.currentGroupPath = ((FSMNode)nodegroup).GetPath();
-			groupPaths = _scriptableObject.currentGroupPath;
+			_currentGroupPath = _scriptableObject.currentGroupPath;
 		UpdateNodes ();
 	}
 	void UpdateNodes(){
-		nodes.Clear ();
+			_nodes.Clear ();
 			for (int i = 0; i < _scriptableObject.ShowNodes.Count; i++) {
-				nodes .Add( _scriptableObject.ShowNodes[i]);
+				_nodes .Add( _scriptableObject.ShowNodes[i]);
 		}
 			allNodes = _scriptableObject.nodes;
 	}
@@ -205,7 +205,7 @@ public class IFsmEditor : NodeEditor {
 	protected override void ContextMenu_NodeGroud (ref GenericMenu menu)
 	{
 		menu.AddItem (new GUIContent ("Dele StateMachine"), false, delegate {
-			string path = selectNodes[0].GetPath();
+			string path = _selectNodes[0].GetPath();
 			for(int i = 0;i < allNodes.Length;i++){
 				if(allNodes[i].GetPath().Contains(path)){
 					DeleState(allNodes[i]);		
@@ -226,33 +226,33 @@ public class IFsmEditor : NodeEditor {
 		}
 	}
 	void MakeTranstion(){
-		makeTranstion = true;
+		_makeTranstion = true;
 	}
 	void AddState(){
-			AddNode(_scriptableObject.AddNode (mousePosition-offset));
+			AddNode(_scriptableObject.AddNode (_cachedMousePosition-_canvasOffset));
 	}
 	void AddStateMachine(){
-			AddNode(_scriptableObject.AddNodeGroup (mousePosition-offset));
+			AddNode(_scriptableObject.AddNodeGroup (_cachedMousePosition-_canvasOffset));
 	}
 	void DeleState(Node target){
-		nodes.Remove (target);	
+			_nodes.Remove (target);	
 			_scriptableObject.RemoveNode ((FSMNode)target);
-			startNode = _scriptableObject.startNode;
+			_startNode = _scriptableObject.startNode;
 	}
 	void DeleState(){
-		for (int i = 0; i < selectNodes.Count; i++) {
-			if (nodes.Contains (selectNodes [i])) {
-				DeleState (selectNodes [i]);
+		for (int i = 0; i < _selectNodes.Count; i++) {
+				if (_nodes.Contains (_selectNodes [i])) {
+				DeleState (_selectNodes [i]);
 				return;
 			}
 		}
 	}
 	void DeleTransition(){
-			_scriptableObject.DeleTransition (FindNodeWithHashByAll (selectTransition.fromNodeHash),selectTransition);
+			_scriptableObject.DeleTransition (FindNodeWithHashByAll (_selectTransition.fromNodeHash),_selectTransition);
 	}
 	void SetDefaultState(){
-		startNode = selectNodes [0];
-			_scriptableObject.SetDefaultState (startNode);
+			_startNode = _selectNodes [0];
+			_scriptableObject.SetDefaultState (_startNode);
 	}
 	#endregion
 }
